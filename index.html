@@ -980,6 +980,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid #4eaacb;outline-off
 }
 @media(prefers-reduced-motion:reduce){.point-icon.water-alert{animation:none}}
 </style>
+<style id="shareWarningStyle">.share-warning{margin:20px 0 12px;padding-top:16px;border-top:1px solid #dce8ef}.share-warning h3{margin-top:16px}#shareText{width:100%;resize:vertical;box-sizing:border-box;border:1px solid #cddfe8;border-radius:7px;padding:12px;font:12px/1.7 system-ui;background:#f7fbfd;color:#294d61;margin-bottom:12px}#shareStatus{font-size:12px;line-height:1.7;color:#276d88}.share-warning [hidden]{display:none!important}</style>
 </head><body>
 <section class="aqua-intro" id="aquaIntro" role="region" aria-label="Pembuka AquaAlert">
  <div class="aqua-intro-wave is-back" aria-hidden="true"></div><div class="aqua-intro-wave" aria-hidden="true"></div><span class="aqua-bubble" aria-hidden="true" style="--x:8%;--size:25px;--time:5s;--delay:-.3s"></span><span class="aqua-bubble" aria-hidden="true" style="--x:19%;--size:14px;--time:4.4s;--delay:-1.5s"></span><span class="aqua-bubble" aria-hidden="true" style="--x:34%;--size:33px;--time:6s;--delay:-2.1s"></span><span class="aqua-bubble" aria-hidden="true" style="--x:58%;--size:18px;--time:4.8s;--delay:-.7s"></span><span class="aqua-bubble" aria-hidden="true" style="--x:73%;--size:37px;--time:6.5s;--delay:-3s"></span><span class="aqua-bubble" aria-hidden="true" style="--x:88%;--size:22px;--time:5.7s;--delay:-1s"></span>
@@ -1147,8 +1148,33 @@ function showFacility(id,pan=true){
  if(pan&&map)map.setView([...f.geometry.coordinates].reverse(),15);
  const a=water?.assessment;
  $('hazardContent').innerHTML=`<div class="detail-heading"><span class="detail-icon">${icon(p.kategori)}</span><span class="eyebrow">${esc(categories[p.kategori].label)}</span></div><h1>${esc(p.nama)}</h1><p>${esc(p.kelurahan)} · ${esc(p.wilayah)}</p><span class="date-chip">${formatDate(activeDate)} · simulasi</span>${water?`<div class="hazard-status ${a.wet?'is-wet':''}"><strong>${a.status}</strong><p>${a.wet?'Titik sumber air masuk genangan simulasi. '+a.linked.length+' potensi pencemar tergenang berada dalam 500 meter pada bidang yang sama.':'Belum terpapar pada skenario tanggal ini. Kualitas air tetap memerlukan pemeriksaan.'}</p></div><h3>Potensi pencemar yang berdekatan</h3>${a.linked.length?'<ul class="near-list">'+a.linked.map(s=>`<li>${esc(s.f.properties.nama)} <small>± ${Math.round(s.distance)} m</small></li>`).join('')+'</ul>':'<p>Tidak ada fasilitas tergenang yang memenuhi kriteria kedekatan pada dataset ini.</p>'}${waterHazards(f)}<button class="primary full" id="waterReport">Buat laporan sumber air ini</button>`:`<div class="hazard-status"><strong>${f.wet?'Potensi pencemar dalam genangan':'Di luar genangan simulasi'}</strong><p>Fasilitas ini dipakai sebagai indikator pendukung. Peringatan utama dihitung untuk titik sumber air minum, bukan untuk menentukan kualitas air di fasilitas ini.</p></div>${hazardHTML(f)}`}${sourceLinks(p)}<p class="footnote">Jarak lurus 500 m adalah aturan simulasi, bukan batas aman atau model aliran air tanah. Keberadaan fasilitas tidak membuktikan pelepasan pencemar.</p>`;
- if(water)$('waterReport').onclick=()=>{$('hazardDialog').close();openReport(id);};
+ if(water){
+  const shareBox=document.createElement('section');shareBox.className='share-warning';
+  shareBox.innerHTML=`<button type="button" class="secondary full" id="shareWarning">${a.wet?'Bagikan peringatan':'Bagikan informasi sumber air'}</button><div id="sharePreview" hidden><h3>Pesan yang akan dibagikan</h3><p class="footnote">Pesan memuat titik sumur fiktif dan tanggal simulasi. Pilih penerima sendiri; AquaAlert tidak mengirim otomatis.</p><label class="sr-only" for="shareText">Isi pesan peringatan</label><textarea id="shareText" rows="8" readonly></textarea><div class="report-actions"><button type="button" class="primary" id="shareSend">Pilih aplikasi</button><button type="button" class="secondary" id="shareCopy">Salin pesan</button></div><p id="shareStatus" role="status" aria-live="polite"></p></div>`;
+  $('waterReport').before(shareBox);
+  $('waterReport').onclick=()=>{$('hazardDialog').close();openReport(id);};
+  $('shareWarning').onclick=()=>{ $('sharePreview').hidden=false;$('shareText').value=warningMessage(id);$('shareSend').hidden=typeof navigator.share!=='function';$('shareStatus').textContent=typeof navigator.share==='function'?'Periksa pesan, lalu pilih aplikasi atau salin pesannya.':'Perangkat ini belum mendukung pilihan berbagi. Salin pesan lalu tempel ke WhatsApp atau aplikasi lain.'; };
+  $('shareSend').onclick=()=>shareWarning(id);$('shareCopy').onclick=copyWarning;
+ }
  if(!$('hazardDialog').open)$('hazardDialog').showModal();
+}
+function warningMessage(id){
+ const f=waterRecords.find(f=>f.properties.id===id);if(!f)return '';
+ const p=f.properties,a=f.assessment,c=f.geometry.coordinates;
+ return `${a.wet?'⚠️ PERINGATAN':'ℹ️ INFORMASI'} AQUAALERT\nSIMULASI — BUKAN KEJADIAN BANJIR NYATA\n\nTanggal skenario: ${formatDate(activeDate)}\nSumber air: ${p.nama}\nWilayah: ${p.kelurahan}, ${p.wilayah}\nKoordinat titik fiktif: ${c[1].toFixed(6)}, ${c[0].toFixed(6)}\nStatus: ${a.status}\n${a.wet?'Titik sumber air berada dalam genangan simulasi. Potensi pencemar tergenang dalam 500 m pada bidang sama: '+a.linked.length+'.':'Titik berada di luar genangan pada tanggal ini. Hal ini tidak menjamin air aman untuk diminum.'}\n\n${a.linked.length?'Potensi pencemar terdekat:\n'+a.linked.slice(0,5).map(s=>'- '+s.f.properties.nama+' (± '+Math.round(s.distance)+' m)').join('\n')+'\n\n':''}Mohon waspada dan minta pemeriksaan air jika ditemukan kondisi serupa di lapangan. Peta bukan hasil uji bakteri atau bukti kontaminasi. Sumber air, septic tank, pabrik, dan peternakan adalah titik fiktif. Jangan menyampaikan simulasi sebagai kejadian nyata.\n\nLihat peta: https://adthnd.github.io/AquaAlert/`;
+}
+async function shareWarning(id){
+ const text=warningMessage(id);if(!text)return;
+ if(typeof navigator.share!=='function'){$('shareStatus').textContent='Pilihan berbagi belum tersedia. Gunakan Salin pesan.';return;}
+ $('shareSend').disabled=true;
+ try{await navigator.share({title:'AquaAlert · Informasi sumber air (simulasi)',text});$('shareStatus').textContent='Pilihan berbagi selesai. Pengiriman mengikuti aplikasi yang Anda pilih.';}
+ catch(e){$('shareStatus').textContent=e.name==='AbortError'?'Berbagi dibatalkan. Pesan tetap tersedia untuk disalin.':'Pilihan berbagi tidak dapat dibuka. Gunakan Salin pesan lalu tempel ke aplikasi tujuan.';}
+ finally{$('shareSend').disabled=false;}
+}
+async function copyWarning(){
+ const field=$('shareText');
+ try{if(!navigator.clipboard?.writeText)throw Error('fallback');await navigator.clipboard.writeText(field.value);$('shareStatus').textContent='Pesan disalin. Tempel ke chat atau grup pilihan Anda; belum terkirim otomatis.';}
+ catch{field.focus();field.select();let copied=false;try{copied=document.execCommand('copy');}catch{}$('shareStatus').textContent=copied?'Pesan disalin. Tempel ke aplikasi tujuan.':'Pesan sudah dipilih. Tekan Ctrl+C atau tahan teks lalu pilih Salin.';}
 }
 function activatePanel(id){document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==id);document.querySelectorAll('.tab').forEach(t=>{const active=t.dataset.panel===id;t.classList.toggle('active',active);t.setAttribute('aria-pressed',String(active));});}
 function selectHome(point,options={}){
