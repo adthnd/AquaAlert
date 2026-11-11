@@ -993,11 +993,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid #4eaacb;outline-off
 
 
 <style id="osmOnlyStyle">.brand .brand-logo,.aqua-intro-logo{background:transparent!important;border-radius:0}.osm-tags{font-size:11px;margin:12px 0}.osm-tags summary{cursor:pointer;color:#276d88}.osm-tags dl{display:grid;grid-template-columns:minmax(90px,1fr) minmax(0,2fr);gap:6px}.osm-tags dt{font-weight:600}.osm-tags dd{margin:0;overflow-wrap:anywhere}.category-name small{font-size:9px}.category-name{flex-wrap:wrap}.osm-cluster{display:flex;align-items:center;justify-content:center;width:29px;height:29px;background:#eef4f8e8;border:1.5px solid #667e91;border-radius:50%;font:bold 11px system-ui;color:#36576d;box-shadow:0 1px 5px #29475a30}.osm-cluster-marker{background:transparent}</style>
-<style id="introLogoSpacingStyle">
-.aqua-intro-logo-wrap{position:relative;top:-14px;margin-bottom:20px;flex-shrink:0}
-.aqua-intro-title{position:relative;margin-top:24px}
-@media(max-height:650px){.aqua-intro-logo-wrap{height:clamp(145px,30dvh,225px);top:-8px;margin-bottom:16px}.aqua-intro-title{margin-top:18px}}
-</style>
+
 
 <style id="locationLookupStyle">/* Latar mengikuti lebar halaman, tanpa memotong tepi kiri dan kanan. */
 #aquaSiteContent{background-size:100% auto!important;background-position:center bottom!important;background-attachment:scroll!important;background-repeat:no-repeat!important;background-color:#fff}
@@ -1025,6 +1021,13 @@ button:focus-visible,summary:focus-visible{outline:3px solid #4eaacb;outline-off
 @media(max-width:850px){.location-lookup{z-index:650}#lookupList{max-height:270px}#aquaSiteContent>footer{min-height:110px;padding-top:45px}}
 
 .lookup-credit{font-size:9px;line-height:1.5;color:#879ca8;margin:5px 0 0}</style>
+<style id="introLogoFlowStyle">
+.aqua-intro-inner{box-sizing:border-box;transform:translateY(-16px)}
+.aqua-intro-logo-wrap{display:block!important;position:relative;top:0!important;width:min(380px,72vw,49dvh)!important;height:auto!important;min-height:0;aspect-ratio:1356 / 1159!important;flex:0 0 auto;margin:0 0 30px!important}
+.aqua-intro-logo{position:absolute!important;inset:0;display:block;width:100%!important;height:100%!important;max-width:100%;max-height:100%;object-fit:contain}
+.aqua-intro-caption{position:relative;flex:0 0 auto;margin:0 0 26px!important}
+@media(max-height:500px){.aqua-intro-inner{transform:none;padding-top:16px;padding-bottom:16px}.aqua-intro-kicker{margin-bottom:12px}.aqua-intro-logo-wrap{width:min(250px,60vw,43dvh)!important;margin-bottom:20px!important}}
+</style>
 </head><body>
 <section class="aqua-intro" id="aquaIntro" role="region" aria-label="Pembuka AquaAlert">
  <div class="aqua-intro-wave is-back" aria-hidden="true"></div><div class="aqua-intro-wave" aria-hidden="true"></div><span class="aqua-bubble" aria-hidden="true" style="--x:8%;--size:25px;--time:5s;--delay:-.3s"></span><span class="aqua-bubble" aria-hidden="true" style="--x:19%;--size:14px;--time:4.4s;--delay:-1.5s"></span><span class="aqua-bubble" aria-hidden="true" style="--x:34%;--size:33px;--time:6s;--delay:-2.1s"></span><span class="aqua-bubble" aria-hidden="true" style="--x:58%;--size:18px;--time:4.8s;--delay:-.7s"></span><span class="aqua-bubble" aria-hidden="true" style="--x:73%;--size:37px;--time:6.5s;--delay:-3s"></span><span class="aqua-bubble" aria-hidden="true" style="--x:88%;--size:22px;--time:5.7s;--delay:-1s"></span>
